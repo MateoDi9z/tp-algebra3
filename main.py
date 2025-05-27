@@ -105,22 +105,22 @@ pasos = 10
 metodos = ['directo', 'optimizado', 'gauss_pivoteo']
 
 # TODO: correr experimientos, obtener resultados y compararlos
-metodo_seleccionado = 2
+metodo_seleccionado = 1
 
 tiempos = []
 errors = []
 
 print("|\tn\t|\ttiempo\t|\tTiempo de Referencia\t|\tError\t|")
-for res in resoluciones[:1]:
+for res in resoluciones:
     resultado, t1 = simular(res, res, dt, alpha, pasos, metodos[metodo_seleccionado])
     tiempos.append(t1*1000)
-    #ref, t2 = simular(res, res, dt, alpha, pasos, metodos[0])
-    # error = error_rms(ref, resultado)
-    # errors.append(error)
+    ref, t2 = simular(res, res, dt, alpha, pasos, metodos[0])
+    error = error_rms(ref, resultado)
+    errors.append(error)
 
-    #print(f"|\t{res}\t|\t{round(t1*1000, 1)}ms\t|\t\t{round(t2*1000, 9)}ms\t\t|\t{round(error, 2)} \t|")
+    print(f"|\t{res}\t|\t{round(t1*1000, 1)}ms\t|\t\t{round(t2*1000, 9)}ms\t\t|\t{round(error, 2)} \t|")
 
-"""
+
 graficar_listas(
     resoluciones,
     tiempos,
@@ -131,4 +131,4 @@ graficar_errores(
     resoluciones,
     errors,
     f'Metodo {metodos[metodo_seleccionado]}'
-)"""
+)

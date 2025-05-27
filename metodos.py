@@ -117,8 +117,6 @@ def solve_tridiagonal_system_optimizado(a, b):
     for j in range(n-1, 0, -1):
         b[j-1] -= diagonal_sup[j-1] * b[j]
 
-    print(a)
-    print(b)
     return b
 
 
