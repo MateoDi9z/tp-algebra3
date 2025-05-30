@@ -105,7 +105,7 @@ pasos = 10
 metodos = ['directo', 'optimizado', 'gauss_pivoteo']
 
 # TODO: correr experimientos, obtener resultados y compararlos
-metodo_seleccionado = 1
+metodo_seleccionado = 2
 
 tiempos = []
 errors = []
