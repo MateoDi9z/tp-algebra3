@@ -8,6 +8,45 @@ vector2 = [-1.5,43.5,9,-4.4,3.2]
 import numpy as np
 from numpy.ma.core import indices
 
+import numpy as np
+from scipy.sparse import identity, csc_matrix, spmatrix, lil_matrix
+
+
+def permutar_filas(A: spmatrix, i: int, j: int) -> spmatrix:
+    """
+    Devuelve una copia de la matriz A con las filas i y j permutadas.
+
+    Parámetros:
+        A: Matriz dispersa (scipy.sparse)
+        i: Índice de la primera fila a permutar
+        j: Índice de la segunda fila a permutar
+
+    Retorna:
+        Nueva matriz con las filas permutadas.
+    """
+    n_rows = A.shape[0]
+    P = identity(n_rows, format='csc').toarray()
+    P[[i, j]] = P[[j, i]]
+    P_perm = csc_matrix(P)
+    return P_perm @ A
+
+def permutar_columnas(A: spmatrix, i: int, j: int) -> spmatrix:
+    """
+    Devuelve una copia de la matriz A con las columnas i y j permutadas.
+
+    Parámetros:
+        A: Matriz dispersa (scipy.sparse)
+        i: Índice de la primera columna a permutar
+        j: Índice de la segunda columna a permutar
+
+    Retorna:
+        Nueva matriz con las columnas permutadas.
+    """
+    n_cols = A.shape[1]
+    P = identity(n_cols, format='csc').toarray()
+    P[:, [i, j]] = P[:, [j, i]]
+    P_perm = csc_matrix(P)
+    return A @ P_perm
 
 def solve_tridiagonal_system(A, b):
     n = len(A) - 1
@@ -120,98 +159,35 @@ def solve_tridiagonal_system_optimizado(a, b):
     return b
 
 
-iii = 0
-def solve_gauss_pivoteo(a, b):
+def solve_gauss_pivoteo(A, b):
     n = len(b)
-    v=0
-    global iii
-    iii += 1
-
-    print("LLAME A LA FUNCION", iii)
-
-    permutacion = []
-    for z in range(n):
-        permutacion.append(z)
+    b = lil_matrix(b)  # Matrix editable
+    A = lil_matrix(A)  # Matrix editable
 
     for j in range(n):
-        max = a[j, j]
+        max_val = abs(A[j, j])
         indice = j
-
-        for i in range(j+1, n):
-            if a[i, j] > max:
-                max = a[i, j]
+        for i in range(j+1 , n):
+             if abs(A[i, j]) > max_val :
+                max_val = abs(A[i, j])
                 indice = i
 
-        t = permutacion[v]
-        permutacion[v] = permutacion[indice]
-        permutacion[indice] = t
+        A = lil_matrix(permutar_filas(A, indice, j))
+        b = lil_matrix(permutar_filas(b, indice, j))
 
-        a = a[permutacion, :]
-        x = b[v]
-        b[v] = b[indice]
-        b[indice] = x
-
-        v += 1
-        divisor = a[j, j]
-        if divisor == 0: continue
-        for k in range(0, n):
-            a[j, k] = a[j, k] / divisor
+        divisor = A[j, j]
+        for k in range(j,n):
+            A[j, k] = A[j, k] / divisor
         b[j] = b[j] / divisor
+        for l in range(j+1, n) :
+            d = A[l, j]
+            b[l] -= b[j] * d
+            for m in range(j,n):
+                A[l, m] -= A[j, m] * d
 
-        for l in range(0, n-1):
-            if j+l > n-1: continue
-            d = 0
+    for i in range(n-1,0,-1):
+        for j in range(i,0,-1):
+            A[j-1, i] -= A[i, i] * A[j-1, i]
+            b[j-1] -= b[i] * A[j-1, i]
 
-            for m in range(0, n):
-                d = a[j+l, j]
-                a[j+l, m] = a[j+l, m] - a[j, m] * d
-
-            b[j+l] = b[j+l] - b[j] * d
-
-    print(a)
-    print(b)
-    return b
-
-
-"""
-    A = np.array(a, dtype=float)
-    b = np.array(b, dtype=float)
-
-    n = len(b)
-    v=0
-
-    for j in range(n):
-        max = a[j, j]
-        indice = 0
-
-        for i in range(j+1, n):
-            if a[i, j] > max:
-                max = a[i, j]
-                indice = i
-        t = a[v]
-        x = b[v]
-        a[v] = a[indice]
-        b[v] = b[indice]
-        a[indice] = t
-        b[indice] = x
-        v += 1
-
-        divisor = a[j, j]
-        if divisor == 0: continue
-        for k in range(0, n):
-            a[j, k] = a[j, k] / divisor
-        b[j] = b[j] / divisor
-
-        for l in range(0, n-1):
-            if j+l > n-1: continue
-            d = 0
-
-            for m in range(0, n):
-                d = a[j+l, j]
-                a[j+l, m] = a[j+l, m] - a[j, m] * d
-
-            b[j+l] = b[j+l] - b[j] * d
-
-    print(a, b)
-    return b
-"""
+    return csc_matrix(b)

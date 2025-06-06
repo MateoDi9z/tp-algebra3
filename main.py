@@ -111,7 +111,10 @@ tiempos = []
 errors = []
 
 print("|\tn\t|\ttiempo\t|\tTiempo de Referencia\t|\tError\t|")
-for res in resoluciones:
+resultado, t1 = simular(10, 10, dt, alpha, pasos, metodos[metodo_seleccionado])
+
+"""
+for res in resoluciones[:1]:
     resultado, t1 = simular(res, res, dt, alpha, pasos, metodos[metodo_seleccionado])
     tiempos.append(t1*1000)
     ref, t2 = simular(res, res, dt, alpha, pasos, metodos[0])
@@ -119,16 +122,17 @@ for res in resoluciones:
     errors.append(error)
 
     print(f"|\t{res}\t|\t{round(t1*1000, 1)}ms\t|\t\t{round(t2*1000, 9)}ms\t\t|\t{round(error, 2)} \t|")
-
-
+"""
+"""
 graficar_listas(
     resoluciones,
     tiempos,
     f'Metodo {metodos[metodo_seleccionado]}'
-)
+)"""
 
+"""
 graficar_errores(
     resoluciones,
     errors,
     f'Metodo {metodos[metodo_seleccionado]}'
-)
+)"""
