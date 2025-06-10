@@ -159,6 +159,7 @@ def solve_tridiagonal_system_optimizado(a, b):
     return b
 
 
+iii = 0
 def solve_gauss_pivoteo(A, b):
     n = len(b)
     b = lil_matrix(b)  # Matrix editable
